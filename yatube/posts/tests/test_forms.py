@@ -49,7 +49,9 @@ class PostCreateFormTests(TestCase):
             follow=True
         )
         self.assertEqual(Post.objects.count(), posts_count + 1)
-        self.assertTrue(self.user.posts)
+        self.assertTrue(self.user.posts.filter(
+            text=form_data['text']
+        ).exists())
 
     def test_edit_post(self):
         form_data = {
@@ -63,4 +65,6 @@ class PostCreateFormTests(TestCase):
             data=form_data,
             follow=True
         )
-        self.assertTrue(self.user.posts.filter)
+        self.assertTrue(self.user.posts.filter(
+            text=form_data['text']
+        ).exists())
