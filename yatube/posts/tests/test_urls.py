@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from django.test import TestCase, Client
 
 from ..models import Group, User, Post
@@ -38,9 +39,8 @@ class PostURLTests(TestCase):
         )
         for url in url_names:
             with self.subTest(url=url):
-                print(url)
                 response = self.guest_client.get(url)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_redirects_for_not_authorized_users(self):
         url_names = (
@@ -50,7 +50,7 @@ class PostURLTests(TestCase):
         for url in url_names:
             with self.subTest(url=url):
                 response = self.guest_client.get(url)
-                self.assertEqual(response.status_code, 302)
+                self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_urls_for_authorized_users(self):
         """Страница доступна для авторизованных пользователей"""
@@ -61,12 +61,12 @@ class PostURLTests(TestCase):
         for url in url_names:
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
-                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_edit_page_for_not_author(self):
         url = f'/{self.user.username}/{self.post.id}/edit/'
         response = self.wrong_user.get(url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_urls_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""

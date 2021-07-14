@@ -52,9 +52,11 @@
                         </a>
                         <!-- Ссылка на редактирование, показывается только автору записи.
                           Эту ссылку вы подключите в финальном задании спринта -->
+                        {% if post.author == user %}
                         <a class="btn btn-sm text-muted"
                            href="{% url 'post_edit' username=post.author.username post_id=post.id %}" role="button">
                             Редактировать
+                            {% endif %}
                         </a>
                     </div>
                     <small class="text-muted">Дата публикации: {{ post.pub_date|date:"d M Y" }}</small>
@@ -62,7 +64,7 @@
             </div>
         </div>
         {% endfor %}
-        {% include "paginator.html" %}
+        {% include "includes/paginator.html" %}
         <!-- Конец блока с отдельным постом -->
         <!-- Остальные посты -->
         <!-- Здесь постраничная навигация паджинатора -->

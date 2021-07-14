@@ -24,7 +24,7 @@ class PostCreateFormTests(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
-    def test_cant_create_existing_slug(self):
+    def test_create_post_for_guest(self):
         posts_count = Post.objects.count()
         form_data = {
             'text': 'Текст из формы',
@@ -37,10 +37,11 @@ class PostCreateFormTests(TestCase):
         )
         self.assertEqual(Post.objects.count(), posts_count)
 
-    def test_can_create_existing_slug(self):
+    def test_create_post_for_auth_user(self):
         posts_count = Post.objects.count()
         form_data = {
             'text': 'Текст из формы',
+            'group': self.group.id
         }
         self.authorized_client.post(
             reverse('new_post'),
@@ -48,6 +49,7 @@ class PostCreateFormTests(TestCase):
             follow=True
         )
         self.assertEqual(Post.objects.count(), posts_count + 1)
+        self.assertTrue(self.user.posts)
 
     def test_edit_post(self):
         form_data = {
@@ -61,4 +63,4 @@ class PostCreateFormTests(TestCase):
             data=form_data,
             follow=True
         )
-        self.assertTrue(self.user.posts.filter(text='Другой текст').exists())
+        self.assertTrue(self.user.posts.filter)

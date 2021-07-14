@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
@@ -7,8 +8,8 @@ from .models import Group, Post, User
 
 
 def index(request):
-    post_list = Post.objects.all().order_by('-pub_date')
-    paginator = Paginator(post_list, 10)
+    post_list = Post.objects.all()
+    paginator = Paginator(post_list, settings.PAG_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(
@@ -21,7 +22,7 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()
-    paginator = Paginator(posts, 10)
+    paginator = Paginator(posts, settings.PAG_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
@@ -47,11 +48,10 @@ def new_post(request):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     author_posts = author.posts.all()
-    paginator = Paginator(author_posts, 10)
+    paginator = Paginator(author_posts, settings.PAG_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     post_count = author.posts.count()
-    print(author)
     context = {
         'author': author,
         'page': page,
@@ -63,25 +63,20 @@ def profile(request, username):
 def post_view(request, username, post_id):
     post = get_object_or_404(Post, id=post_id, author__username=username)
     author = post.author
-    return render(request, 'post.html', {"post": post, "author": author})
+    return render(request, 'post.html', {'post': post, 'author': author})
 
 
 @login_required()
 def post_edit(request, username, post_id):
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = PostForm(request.POST or None, instance=post)
-    if not post:
-        return redirect('index')
     if request.user != post.author:
         return redirect('post', username, post_id)
-    if request.method != 'POST':
-        return render(
-            request, "new_post.html", {"form": form, "post": post})
     if form.is_valid():
         form.save()
         return redirect('post', username, post_id)
     return render(
-        request, "new_post.html", {"form": form, "post": post})
+        request, 'new_post.html', {'form': form, 'post': post})
 
 
 def add_comment(request, username, post_id):
